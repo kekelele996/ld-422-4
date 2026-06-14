@@ -3,3 +3,4 @@ export type ReviewStatus = "Draft" | "Submitted" | "Approved" | "Rejected" | "Re
 export type HazardLevel = "Safe" | "Irritant" | "Corrosive" | "Flammable" | "Toxic" | "Explosive";
 export type StorageCondition = "RoomTemp" | "Refrigerated" | "Frozen" | "Dark" | "Ventilated";
 export type UserRole = "Admin" | "PI" | "SubPI" | "Researcher" | "Student";
+export type User = { id: string; name: string; role: UserRole };

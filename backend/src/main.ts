@@ -10,6 +10,7 @@ import { authMiddleware } from "./middlewares/auth.middleware.ts";
 import { requestLoggerMiddleware } from "./middlewares/requestLogger.middleware.ts";
 import { errorHandlerMiddleware } from "./middlewares/errorHandler.middleware.ts";
 import { ApiError, created, ok } from "./utils/response.ts";
+import type { User } from "./types/interfaces.ts";
 
 async function parseBody(req: IncomingMessage) {
   const chunks: Buffer[] = [];
@@ -23,7 +24,7 @@ const server = createServer(async (req, res) => {
     requestLoggerMiddleware(req);
     res.setHeader("access-control-allow-origin", "*");
     res.setHeader("access-control-allow-headers", "content-type, authorization, x-demo-role");
-    res.setHeader("access-control-allow-methods", "GET,POST,PATCH,OPTIONS");
+    res.setHeader("access-control-allow-methods", "GET,POST,PATCH,DELETE,OPTIONS");
     if (req.method === "OPTIONS") {
       res.writeHead(204);
       res.end();
@@ -34,14 +35,14 @@ const server = createServer(async (req, res) => {
     const path = url.pathname;
     const method = req.method ?? "GET";
     const user = authMiddleware(req);
-    const body = ["POST", "PATCH", "PUT"].includes(method) ? await parseBody(req) : {};
+    const body = ["POST", "PATCH", "PUT", "DELETE"].includes(method) ? await parseBody(req) : {};
 
     let data: unknown;
     if (method === "GET" && path === "/api/health") data = { status: "ok", service: "research-lab", time: new Date().toISOString() };
     else if (method === "GET" && path === "/api/dashboard") data = dashboardService.summary();
     else if (method === "GET" && path === "/api/audit-logs") data = auditLogs;
     else data =
-      memberRoutes(method, path, url.searchParams) ??
+      memberRoutes(method, path, url.searchParams, user as User, body) ??
       projectRoutes(method, path, url.searchParams, user as never, body) ??
       experimentRoutes(method, path, url.searchParams, user as never, body) ??
       reagentUsageRoutes(method, path, url.searchParams, user as never, body) ??

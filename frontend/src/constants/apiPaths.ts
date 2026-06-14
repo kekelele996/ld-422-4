@@ -5,5 +5,6 @@ export const API_PATHS = {
   reagents: "/reagents",
   reagentUsages: "/reagent-usages",
   members: "/members",
+  users: "/users",
   auditLogs: "/audit-logs"
 } as const;
